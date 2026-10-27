@@ -1,0 +1,16 @@
+*.o
+*.obj
+*.out
+*.exe
+*.dll
+*.so
+*.a
+*.lib
+build/
+cmake-build-*/
+.vs/
+*.sln
+*.vcxproj*
+*.user
+ipch/
+.vscode/
