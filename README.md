@@ -1,4 +1,4 @@
-# Wielomiany
+# 1. Wielomiany
 
 Prosty parser wielomianów w C++. Program odczytuje jednomiany, sumuje współczynniki przy tych samych potęgach i wyświetla wynik w czytelnej postaci. Obsługuje m.in. liczby dziesiętne oraz odstępy między składnikami, współczynnikiem a `x` i przy wykładniku.
 
