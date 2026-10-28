@@ -2,11 +2,15 @@
 
 using namespace std;
 
-struct wielomian
+class wielomian
 {
     double *wsp;
     unsigned int stopien;
     void Pokaz() const;
+
+public:
+    Wielomian(chonst char *);
+    Wielomian &operator+=(const Wielomian &);
 };
 
 void pomidOdstepy(const char *&napis)
@@ -192,6 +196,25 @@ void wielomian::Pokaz() const
     cout << endl;
 }
 
+Wielomian &Wielomian::operator+=(const char Wielomian &wi2)
+{
+    if (stopien < wi2.stopien)
+    {
+        double *nowaT = new double[wi2.stopien + 1];
+        for (int i = 0; i <= stopien; ++i)
+            nowaT[i] = wsp[i];
+        for (int i = stopien + 1; i <= wi2.stopien; i++)
+            nowaT[i] = 0;
+        delete[] wsp;
+        wsp = nowaT;
+        stopien = wi2.stopien;
+    }
+    for (int i = 0; i <= wi2.stopien; i++)
+        wsp[i] += wi2.wsp[i];
+
+    return *this;
+}
+
 int main()
 {
     const char *przyklady[] = {
@@ -235,3 +258,9 @@ int main()
 
     return 0;
 }
+// kg@is.umk.pl
+
+Wielomian w('3x^2-2x+5');
+Wielomian w('3x^2-2x+5');
+w1 += w2;
+w1.Pokaz();
