@@ -9,7 +9,7 @@ class wielomian
     void Pokaz() const;
 
 public:
-    Wielomian(chonst char *);
+    Wielomian(const char *);
     Wielomian &operator+=(const Wielomian &);
 };
 
