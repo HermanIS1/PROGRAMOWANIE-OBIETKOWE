@@ -6,17 +6,17 @@ using namespace std;
 class Wielomian
 {
     double *wsp;
-    unsigned int stopien;
+    int stopien;
     bool poprawny;
 
 public:
     Wielomian();
     Wielomian(const char *napis);
-    Wielomian(unsigned int stopien, const double wsp[]);
+    Wielomian(int stopien, const double wsp[]);
     Wielomian(const Wielomian &w);
     ~Wielomian();
 
-    unsigned int Stopien() const { return stopien; }
+    int Stopien() const { return stopien; }
     bool Poprawny() const { return poprawny; }
 
     void Pokaz() const;
@@ -68,7 +68,7 @@ int rozpoznajStopien(const char napis[])
     return n;
 }
 
-const char *analizujJednomian(const char napis[], unsigned int stopien, double wsp[])
+const char *analizujJednomian(const char napis[], int stopien, double wsp[])
 {
     const char *poczatek = napis;
 
@@ -138,7 +138,7 @@ const char *analizujJednomian(const char napis[], unsigned int stopien, double w
     return napis;
 }
 
-int analizujJednomiany(const char napis[], unsigned int stopien, double wsp[])
+int analizujJednomiany(const char napis[], int stopien, double wsp[])
 {
     pomidOdstepy(napis);
 
@@ -189,7 +189,7 @@ Wielomian::Wielomian(const char *napis)
     stopien = s;
     wsp = new double[stopien + 1];
 
-    for (unsigned int i = 0; i <= stopien; i++)
+    for (int i = 0; i <= stopien; i++)
         wsp[i] = 0;
 
     poprawny = analizujJednomiany(napis, stopien, wsp);
@@ -204,12 +204,12 @@ Wielomian::Wielomian(const char *napis)
     }
 }
 
-Wielomian::Wielomian(unsigned int stopien, const double tab[])
+Wielomian::Wielomian(int stopien, const double tab[])
 {
     this->stopien = stopien;
     wsp = new double[stopien + 1];
 
-    for (unsigned int i = 0; i <= stopien; i++)
+    for (int i = 0; i <= stopien; i++)
         wsp[i] = tab[i];
 
     poprawny = true;
@@ -220,7 +220,7 @@ Wielomian::Wielomian(const Wielomian &w)
     stopien = w.stopien;
     wsp = new double[stopien + 1];
 
-    for (unsigned int i = 0; i <= stopien; i++)
+    for (int i = 0; i <= stopien; i++)
         wsp[i] = w.wsp[i];
 
     poprawny = w.poprawny;
@@ -277,10 +277,10 @@ Wielomian &Wielomian::operator+=(const Wielomian &w)
     {
         double *nowaT = new double[w.stopien + 1];
 
-        for (unsigned int i = 0; i <= stopien; ++i)
+        for (int i = 0; i <= stopien; ++i)
             nowaT[i] = wsp[i];
 
-        for (unsigned int i = stopien + 1; i <= w.stopien; i++)
+        for (int i = stopien + 1; i <= w.stopien; i++)
             nowaT[i] = 0;
 
         delete[] wsp;
@@ -289,7 +289,7 @@ Wielomian &Wielomian::operator+=(const Wielomian &w)
         stopien = w.stopien;
     }
 
-    for (unsigned int i = 0; i <= w.stopien; i++)
+    for (int i = 0; i <= w.stopien; i++)
         wsp[i] += w.wsp[i];
 
     poprawny = poprawny && w.poprawny;
