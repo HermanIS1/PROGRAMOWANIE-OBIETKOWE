@@ -1,16 +1,28 @@
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
-class wielomian
+class Wielomian
 {
     double *wsp;
     unsigned int stopien;
-    void Pokaz() const;
+    bool poprawny;
 
 public:
-    Wielomian(const char *);
-    Wielomian &operator+=(const Wielomian &);
+    Wielomian();
+    Wielomian(const char *napis);
+    Wielomian(unsigned int stopien, const double wsp[]);
+    Wielomian(const Wielomian &w);
+    ~Wielomian();
+
+    unsigned int Stopien() const { return stopien; }
+    bool Poprawny() const { return poprawny; }
+
+    void Pokaz() const;
+
+    Wielomian &operator+=(const Wielomian &w);
+    Wielomian operator+(const Wielomian &w) const;
 };
 
 void pomidOdstepy(const char *&napis)
@@ -22,37 +34,44 @@ void pomidOdstepy(const char *&napis)
 int rozpoznajStopien(const char napis[])
 {
     int n = 0;
+
     for (int i = 0; napis[i] != '\0'; ++i)
     {
         if (napis[i] == 'x')
         {
+            int j = i + 1;
+
+            while (napis[j] == ' ' || napis[j] == '\t')
+                j++;
+
             int s = 1;
-            if (napis[i + 1] == '^')
+
+            if (napis[j] == '^')
             {
+                j++;
+
+                while (napis[j] == ' ' || napis[j] == '\t')
+                    j++;
+
                 char *r;
-                s = std::strtol(&napis[i + 2], &r, 10);
+                s = strtol(&napis[j], &r, 10);
+
+                if (r == &napis[j] || s < 0)
+                    return -1;
             }
+
             if (s > n)
                 n = s;
         }
     }
+
     return n;
 }
 
-wielomian alokujPamiec(int s)
+const char *analizujJednomian(const char napis[], unsigned int stopien, double wsp[])
 {
-    wielomian w;
-    w.stopien = s;
-    w.wsp = new double[s + 1]; // (double *)malloc((s+1) * sizeof(double));
+    const char *poczatek = napis;
 
-    for (int i = 0; i <= s; i++)
-        w.wsp[i] = 0;
-
-    return w;
-}
-
-const char *analizujJednomian(const char napis[], wielomian *w)
-{
     double liczbaR = 1;
     int liczbaC = 0;
     int znak = 1;
@@ -69,15 +88,18 @@ const char *analizujJednomian(const char napis[], wielomian *w)
 
     pomidOdstepy(napis);
 
+    if (*napis == '+' || *napis == '-' || *napis == '\0')
+        return poczatek;
+
     if (*napis == 'x')
         liczbaR = 1;
     else
     {
         char *r;
-        liczbaR = std::strtod(napis, &r);
+        liczbaR = strtod(napis, &r);
 
         if (r == napis)
-            return napis;
+            return poczatek;
 
         napis = r;
     }
@@ -95,10 +117,10 @@ const char *analizujJednomian(const char napis[], wielomian *w)
             pomidOdstepy(napis);
 
             char *r;
-            liczbaC = std::strtol(napis, &r, 10);
+            liczbaC = strtol(napis, &r, 10);
 
-            if (r == napis)
-                return napis;
+            if (r == napis || liczbaC < 0)
+                return poczatek;
 
             napis = r;
         }
@@ -106,21 +128,26 @@ const char *analizujJednomian(const char napis[], wielomian *w)
             liczbaC = 1;
     }
 
-    if (liczbaC > (int)w->stopien)
-        return napis;
+    if (liczbaC > (int)stopien)
+        return poczatek;
 
-    w->wsp[liczbaC] += znak * liczbaR;
+    wsp[liczbaC] += znak * liczbaR;
+
     pomidOdstepy(napis);
+
     return napis;
 }
 
-int analizujJednomiany(const char napis[], wielomian *w)
+int analizujJednomiany(const char napis[], unsigned int stopien, double wsp[])
 {
     pomidOdstepy(napis);
 
+    if (*napis == '\0')
+        return 0;
+
     while (*napis != '\0')
     {
-        const char *nowy = analizujJednomian(napis, w);
+        const char *nowy = analizujJednomian(napis, stopien, wsp);
 
         if (nowy == napis)
             return 0;
@@ -133,31 +160,78 @@ int analizujJednomiany(const char napis[], wielomian *w)
 
         if (*napis != '+' && *napis != '-')
             return 0;
-
-        napis++;
-        pomidOdstepy(napis);
-
-        if (*napis == '\0' || *napis == '+' || *napis == '-')
-            return 0;
     }
+
     return 1;
 }
 
-int analizujWielomian(const char napis[], wielomian *w)
+Wielomian::Wielomian()
+{
+    stopien = 0;
+    wsp = new double[1];
+    wsp[0] = 0;
+    poprawny = true;
+}
+
+Wielomian::Wielomian(const char *napis)
 {
     int s = rozpoznajStopien(napis);
-    *w = alokujPamiec(s);
 
-    if (!analizujJednomiany(napis, w))
+    if (s < 0)
     {
-        delete[] w->wsp;
-        return 0;
+        stopien = 0;
+        wsp = new double[1];
+        wsp[0] = 0;
+        poprawny = false;
+        return;
     }
 
-    return 1;
+    stopien = s;
+    wsp = new double[stopien + 1];
+
+    for (unsigned int i = 0; i <= stopien; i++)
+        wsp[i] = 0;
+
+    poprawny = analizujJednomiany(napis, stopien, wsp);
+
+    if (!poprawny)
+    {
+        delete[] wsp;
+
+        stopien = 0;
+        wsp = new double[1];
+        wsp[0] = 0;
+    }
 }
 
-void wielomian::Pokaz() const
+Wielomian::Wielomian(unsigned int stopien, const double tab[])
+{
+    this->stopien = stopien;
+    wsp = new double[stopien + 1];
+
+    for (unsigned int i = 0; i <= stopien; i++)
+        wsp[i] = tab[i];
+
+    poprawny = true;
+}
+
+Wielomian::Wielomian(const Wielomian &w)
+{
+    stopien = w.stopien;
+    wsp = new double[stopien + 1];
+
+    for (unsigned int i = 0; i <= stopien; i++)
+        wsp[i] = w.wsp[i];
+
+    poprawny = w.poprawny;
+}
+
+Wielomian::~Wielomian()
+{
+    delete[] wsp;
+}
+
+void Wielomian::Pokaz() const
 {
     bool pierwszy = true;
 
@@ -187,6 +261,7 @@ void wielomian::Pokaz() const
             if (i > 1)
                 cout << "^" << i;
         }
+
         pierwszy = false;
     }
 
@@ -196,23 +271,39 @@ void wielomian::Pokaz() const
     cout << endl;
 }
 
-Wielomian &Wielomian::operator+=(const char Wielomian &wi2)
+Wielomian &Wielomian::operator+=(const Wielomian &w)
 {
-    if (stopien < wi2.stopien)
+    if (stopien < w.stopien)
     {
-        double *nowaT = new double[wi2.stopien + 1];
-        for (int i = 0; i <= stopien; ++i)
+        double *nowaT = new double[w.stopien + 1];
+
+        for (unsigned int i = 0; i <= stopien; ++i)
             nowaT[i] = wsp[i];
-        for (int i = stopien + 1; i <= wi2.stopien; i++)
+
+        for (unsigned int i = stopien + 1; i <= w.stopien; i++)
             nowaT[i] = 0;
+
         delete[] wsp;
+
         wsp = nowaT;
-        stopien = wi2.stopien;
+        stopien = w.stopien;
     }
-    for (int i = 0; i <= wi2.stopien; i++)
-        wsp[i] += wi2.wsp[i];
+
+    for (unsigned int i = 0; i <= w.stopien; i++)
+        wsp[i] += w.wsp[i];
+
+    poprawny = poprawny && w.poprawny;
 
     return *this;
+}
+
+Wielomian Wielomian::operator+(const Wielomian &w) const
+{
+    Wielomian wynik(*this);
+
+    wynik += w;
+
+    return wynik;
 }
 
 int main()
@@ -239,28 +330,60 @@ int main()
 
     int ile = sizeof(przyklady) / sizeof(przyklady[0]);
 
+    cout << "Test parsera\n\n";
+
     for (int i = 0; i < ile; i++)
     {
+        Wielomian w(przyklady[i]);
+
         cout << przyklady[i] << " = ";
 
-        wielomian w;
-
-        if (analizujWielomian(przyklady[i], &w))
-        {
+        if (w.Poprawny())
             w.Pokaz();
-            delete[] w.wsp;
-        }
         else
-        {
             cout << "Niepoprawny wielomian" << endl;
-        }
     }
+
+    cout << "\nTest konstruktorów\n\n";
+
+    double tab[] = {5, -2, 3};
+
+    Wielomian w1;
+    Wielomian w2("3x^2-2x+5");
+    Wielomian w3(2, tab);
+    Wielomian w4(w2);
+
+    cout << "Bezargumentowy: ";
+    w1.Pokaz();
+
+    cout << "Z napisu: ";
+    w2.Pokaz();
+
+    cout << "Z tablicy: ";
+    w3.Pokaz();
+
+    cout << "Kopiujacy: ";
+    w4.Pokaz();
+
+    cout << "\nTest operatora +=\n\n";
+
+    Wielomian a("x^2+2x+1");
+    Wielomian b("3x^3+2x+5");
+
+    a += b;
+
+    cout << "a += b: ";
+    a.Pokaz();
+
+    cout << "\nTest operatora +\n\n";
+
+    Wielomian c("2x^2+3x+5");
+    Wielomian d("x^2-2x+1");
+
+    Wielomian suma = c + d;
+
+    cout << "c + d: ";
+    suma.Pokaz();
 
     return 0;
 }
-// kg@is.umk.pl
-
-Wielomian w('3x^2-2x+5');
-Wielomian w('3x^2-2x+5');
-w1 += w2;
-w1.Pokaz();
