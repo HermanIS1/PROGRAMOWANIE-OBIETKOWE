@@ -173,7 +173,7 @@ int analizujJednomiany(const char napis[], int stopien, double wsp[])
     return 1;
 }
 
-Wielomian::Wielomian()
+Wielomian::Wielomian() //bezargumentowy
 {
     stopien = 0;
     wsp = new double[1];
@@ -181,7 +181,7 @@ Wielomian::Wielomian()
     poprawny = true;
 }
 
-Wielomian::Wielomian(const char *napis)
+Wielomian::Wielomian(const char *napis) //z napisu
 {
     int s = rozpoznajStopien(napis);
 
