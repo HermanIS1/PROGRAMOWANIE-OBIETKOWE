@@ -5,6 +5,7 @@ using namespace std;
 
 class Wielomian
 {
+private:
     double *wsp;
     int stopien;
     bool poprawny;
@@ -211,7 +212,7 @@ Wielomian::Wielomian(const char *napis)
     }
 }
 
-Wielomian::Wielomian(int stopien, const double tab[])
+Wielomian::Wielomian(int stopien, const double tab[]) // tablicowy
 {
     this->stopien = stopien;
     wsp = new double[stopien + 1];
@@ -222,7 +223,7 @@ Wielomian::Wielomian(int stopien, const double tab[])
     poprawny = true;
 }
 
-Wielomian::Wielomian(const Wielomian &w)
+Wielomian::Wielomian(const Wielomian &w) // kopiujacy
 {
     stopien = w.stopien;
     wsp = new double[stopien + 1];
@@ -475,6 +476,56 @@ Wielomian &Wielomian::operator=(const Wielomian &w)
     return *this;
 }
 
+Wielomian operator+(const Wielomian &w, double liczba)
+{
+    double tab[1] = {liczba};
+    Wielomian staly(0, tab);
+
+    return w + staly;
+}
+
+Wielomian operator+(double liczba, const Wielomian &w)
+{
+    return w + liczba;
+}
+
+Wielomian operator-(const Wielomian &w, double liczba)
+{
+    double tab[1] = {liczba};
+    Wielomian staly(0, tab);
+
+    return w - staly;
+}
+
+Wielomian operator-(double liczba, const Wielomian &w)
+{
+    double tab[1] = {liczba};
+    Wielomian staly(0, tab);
+
+    return staly - w;
+}
+
+Wielomian operator*(const Wielomian &w, double liczba)
+{
+    double tab[1] = {liczba};
+    Wielomian staly(0, tab);
+
+    return w * staly;
+}
+
+Wielomian operator*(double liczba, const Wielomian &w)
+{
+    return w * liczba;
+}
+
+Wielomian operator/(const Wielomian &w, double liczba)
+{
+    double tab[1] = {liczba};
+    Wielomian staly(0, tab);
+
+    return w / staly;
+}
+
 int main()
 {
     const char *przyklady[] = {
@@ -632,6 +683,40 @@ int main()
     t /= zero;
 
     cout << "Czy wynik jest poprawny? " << t.Poprawny() << endl;
+
+    cout << "\nTest operatorow z liczbami\n";
+
+    Wielomian testLiczb("2x^2 + 3x + 1");
+
+    Wielomian wynik1 = testLiczb + 5;
+    cout << "\na + 5: ";
+    wynik1.Pokaz();
+
+    Wielomian wynik2 = 5 + testLiczb;
+    cout << "\n5 + a: ";
+    wynik2.Pokaz();
+
+    Wielomian wynik3 = testLiczb - 5;
+    cout << "\na - 5: ";
+    wynik3.Pokaz();
+
+    Wielomian wynik4 = 5 - testLiczb;
+    cout << "\n5 - a: ";
+    wynik4.Pokaz();
+
+    Wielomian testLiczb2("2x^2 + 4x + 6");
+
+    Wielomian wynik5 = testLiczb2 * 3;
+    cout << "\na * 3: ";
+    wynik5.Pokaz();
+
+    Wielomian wynik6 = 3 * testLiczb2;
+    cout << "\n3 * a: ";
+    wynik6.Pokaz();
+
+    Wielomian wynik7 = testLiczb2 / 2;
+    cout << "\na / 2: ";
+    wynik7.Pokaz();
 
     return 0;
 }
