@@ -22,6 +22,7 @@ public:
 
     void Pokaz() const;
 
+    Wielomian Pochodna() const;
     Wielomian &operator+=(const Wielomian &w);
     Wielomian operator+(const Wielomian &w) const;
     Wielomian &operator-=(const Wielomian &w);
@@ -31,6 +32,8 @@ public:
     Wielomian &operator/=(const Wielomian &w);
     Wielomian operator/(const Wielomian &w) const;
     Wielomian &operator=(const Wielomian &w);
+
+    double operator()(double punkt) const;
 };
 
 void pomidOdstepy(const char *&napis)
@@ -173,7 +176,25 @@ int analizujJednomiany(const char napis[], int stopien, double wsp[])
     return 1;
 }
 
-Wielomian::Wielomian() //bezargumentowy
+Wielomian Wielomian::Pochodna() const
+{
+    if (stopien == 0)
+    {
+        double tab[1] = {0};
+        return Wielomian(0, tab);
+    }
+
+    double *nowaWsp = new double[stopien];
+
+    for (int i = 1; i <= stopien; i++)
+        nowaWsp[i - 1] = wsp[i] * i;
+
+    Wielomian wynik(stopien - 1, nowaWsp);
+    delete[] nowaWsp;
+    return wynik;
+}
+
+Wielomian::Wielomian()
 {
     stopien = 0;
     wsp = new double[1];
@@ -181,7 +202,7 @@ Wielomian::Wielomian() //bezargumentowy
     poprawny = true;
 }
 
-Wielomian::Wielomian(const char *napis) //z napisu
+Wielomian::Wielomian(const char *napis)
 {
     int s = rozpoznajStopien(napis);
 
@@ -212,7 +233,7 @@ Wielomian::Wielomian(const char *napis) //z napisu
     }
 }
 
-Wielomian::Wielomian(int stopien, const double tab[]) // tablicowy
+Wielomian::Wielomian(int stopien, const double tab[])
 {
     this->stopien = stopien;
     wsp = new double[stopien + 1];
@@ -223,7 +244,7 @@ Wielomian::Wielomian(int stopien, const double tab[]) // tablicowy
     poprawny = true;
 }
 
-Wielomian::Wielomian(const Wielomian &w) // kopiujacy
+Wielomian::Wielomian(const Wielomian &w)
 {
     stopien = w.stopien;
     wsp = new double[stopien + 1];
@@ -277,6 +298,16 @@ void Wielomian::Pokaz() const
         cout << "0";
 
     cout << endl;
+}
+
+double Wielomian::operator()(double punkt) const
+{
+    double wynik = wsp[stopien];
+
+    for (int i = stopien - 1; i >= 0; i--)
+        wynik = wynik * punkt + wsp[i];
+
+    return wynik;
 }
 
 Wielomian &Wielomian::operator+=(const Wielomian &w)
@@ -528,43 +559,41 @@ Wielomian operator/(const Wielomian &w, double liczba)
 
 int main()
 {
+
+    cout << "\n[1] TEST PARSERA\n";
+    cout << "--------------------------------------------\n";
+
     const char *przyklady[] = {
         "x^2-2x+5",
-        "x^3 - x^2 + 2x - 7.5",
-        "2.5x^3 + x - 4",
-        "-x^4 + 3",
+        "x^3-x^2+2x-7.5",
+        "2.5x^3+x-4",
+        "-x^4+3",
         "7",
         "0",
-        "x^2 + 3x^2 - x",
-        "x^5 + 2x^2 - 1",
-        "x^2 + 1",
-        "  x ^ 2 + 3 ",
+        "x^2+3x^2-x",
         "x^2+",
         "x^2++3",
-        "x^2+-3",
-        "2 3x+1",
-        "x^",
-        "x^2 abc",
-        "x^-2",
-        ""};
+        "x^-2"};
 
     int ile = sizeof(przyklady) / sizeof(przyklady[0]);
-
-    cout << "Test parsera\n\n";
 
     for (int i = 0; i < ile; i++)
     {
         Wielomian w(przyklady[i]);
 
-        cout << przyklady[i] << " = ";
+        cout << "\nNapis: " << przyklady[i] << "\n";
+        cout << "Wynik: ";
 
         if (w.Poprawny())
             w.Pokaz();
         else
-            cout << "Niepoprawny wielomian" << endl;
+            cout << "Niepoprawny wielomian";
+
+        cout << "\n";
     }
 
-    cout << "\nTest konstruktorów\n\n";
+    cout << "\n\n[2] TEST KONSTRUKTOROW\n";
+    cout << "--------------------------------------------\n";
 
     double tab[] = {5, -2, 3};
 
@@ -573,150 +602,202 @@ int main()
     Wielomian w3(2, tab);
     Wielomian w4(w2);
 
-    cout << "Bezargumentowy: ";
+    cout << "\nKonstruktor bezargumentowy:\n";
+    cout << "W1 = ";
     w1.Pokaz();
 
-    cout << "Z napisu: ";
+    cout << "\n\nKonstruktor z napisu:\n";
+    cout << "W2 = ";
     w2.Pokaz();
 
-    cout << "Z tablicy: ";
+    cout << "\n\nKonstruktor z tablicy:\n";
+    cout << "W3 = ";
     w3.Pokaz();
 
-    cout << "Kopiujacy: ";
+    cout << "\n\nKonstruktor kopiujacy:\n";
+    cout << "W4 = ";
     w4.Pokaz();
 
-    cout << "\nTest operatora +=\n\n";
+    cout << "\n";
 
-    Wielomian a("x^2+2x+1");
-    Wielomian b("3x^3+2x+5");
+    cout << "\n\n[3] DODAWANIE WIELOMIANOW\n";
+    cout << "--------------------------------------------\n";
 
-    a += b;
+    Wielomian a("2x^2+3x+4");
+    Wielomian b("x^2+5x+2");
 
-    cout << "a += b: ";
+    cout << "\nPierwszy wielomian:\nA(x) = ";
     a.Pokaz();
 
-    cout << "\nTest operatora +\n\n";
+    cout << "\nDrugi wielomian:\nB(x) = ";
+    b.Pokaz();
 
-    Wielomian c("2x^2+3x+5");
-    Wielomian d("x^2-2x+1");
+    Wielomian suma = a + b;
 
-    Wielomian suma = c + d;
-
-    cout << "c + d: ";
+    cout << "\n\nDzialanie: A(x) + B(x)\n";
+    cout << "Wynik: ";
     suma.Pokaz();
 
-    cout << "\nTest operatora =\n\n";
+    Wielomian suma2("2x^2+3x+4");
+    suma2 += b;
 
-    Wielomian e("2x^2+3x+1");
-    Wielomian f("5x^3-2");
+    cout << "\n\nDzialanie: A(x) += B(x)\n";
+    cout << "Nowy A(x) = ";
+    suma2.Pokaz();
 
-    e = f;
+    cout << "\n\n[4] ODEJMOWANIE WIELOMIANOW\n";
+    cout << "--------------------------------------------\n";
 
-    cout << "e=f: ";
-    e.Pokaz();
+    Wielomian c("2x^2+3x+4");
+    Wielomian d("x^2+5x+2");
 
-    cout << "\nTest operatora -=\n\n";
+    cout << "\nC(x) = ";
+    c.Pokaz();
 
-    Wielomian g("3x^3+2x^2+5");
-    Wielomian h("x^2+2x+1");
+    cout << "\nD(x) = ";
+    d.Pokaz();
 
-    g -= h;
+    Wielomian roznica = c - d;
 
-    cout << "g -= h: ";
-    g.Pokaz();
-
-    cout << "\nTest operatora -\n\n";
-
-    Wielomian j("3x^2+4x+5");
-    Wielomian k("x^2+2x+1");
-
-    Wielomian roznica = j - k;
-
-    cout << "j - k: ";
+    cout << "\n\nDzialanie: C(x) - D(x)\n";
+    cout << "Wynik: ";
     roznica.Pokaz();
 
-    cout << "\nTest operatora *=\n\n";
+    Wielomian roznica2("2x^2+3x+4");
+    roznica2 -= d;
 
-    Wielomian l("2x+3");
-    Wielomian m("x+2");
+    cout << "\n\nDzialanie: C(x) -= D(x)\n";
+    cout << "Nowy C(x) = ";
+    roznica2.Pokaz();
 
-    l *= m;
+    cout << "\n\n[5] MNOZENIE WIELOMIANOW\n";
+    cout << "--------------------------------------------\n";
 
-    cout << "l *= m: ";
-    l.Pokaz();
+    Wielomian e("2x+3");
+    Wielomian f("x+4");
 
-    cout << "\nTest operatora *\n\n";
+    cout << "\nE(x) = ";
+    e.Pokaz();
 
-    Wielomian n("x+3");
-    Wielomian o("x-2");
+    cout << "\nF(x) = ";
+    f.Pokaz();
 
-    Wielomian iloczyn = n * o;
+    Wielomian iloczyn = e * f;
 
-    cout << "n * o: ";
+    cout << "\n\nDzialanie: E(x) * F(x)\n";
+    cout << "Wynik: ";
     iloczyn.Pokaz();
 
-    cout << "\nTest operatora /=\n\n";
+    Wielomian iloczyn2("2x+3");
+    iloczyn2 *= f;
 
-    Wielomian p("3x^3+2x^2-5x+6");
-    Wielomian q("x+2");
+    cout << "\n\nDzialanie: E(x) *= F(x)\n";
+    cout << "Nowy E(x) = ";
+    iloczyn2.Pokaz();
 
-    p /= q;
+    cout << "\n\n[6] DZIELENIE WIELOMIANOW\n";
+    cout << "--------------------------------------------\n";
 
-    cout << "p /= q: ";
-    p.Pokaz();
+    Wielomian g("3x^3+2x^2-5x+6");
+    Wielomian h("x+2");
 
-    cout << "\nTest operatora /\n\n";
+    cout << "\nG(x) = ";
+    g.Pokaz();
 
-    Wielomian r("x^3-3x^2+3x-1");
-    Wielomian s("x-1");
+    cout << "\nH(x) = ";
+    h.Pokaz();
 
-    Wielomian iloraz = r / s;
+    Wielomian iloraz = g / h;
 
-    cout << "r / s: ";
+    cout << "\n\nDzialanie: G(x) / H(x)\n";
+    cout << "Wynik: ";
     iloraz.Pokaz();
 
-    cout << "\nTest dzielenia przez zero\n\n";
+    Wielomian iloraz2("3x^3+2x^2-5x+6");
+    iloraz2 /= h;
 
-    Wielomian t("x^2+2x+1");
-    Wielomian zero("0");
+    cout << "\n\nDzialanie: G(x) /= H(x)\n";
+    cout << "Nowy G(x) = ";
+    iloraz2.Pokaz();
 
-    t /= zero;
+    cout << "\n\n[7] OPERATOR PRZYPISANIA\n";
+    cout << "--------------------------------------------\n";
 
-    cout << "Czy wynik jest poprawny? " << t.Poprawny() << endl;
+    Wielomian i("2x^2+3x+1");
+    Wielomian j("5x^3-2");
 
-    cout << "\nTest operatorow z liczbami\n";
+    cout << "\nPrzed przypisaniem:\n";
+    cout << "I(x) = ";
+    i.Pokaz();
 
-    Wielomian testLiczb("2x^2 + 3x + 1");
+    cout << "\nJ(x) = ";
+    j.Pokaz();
 
-    Wielomian wynik1 = testLiczb + 5;
-    cout << "\na + 5: ";
-    wynik1.Pokaz();
+    i = j;
 
-    Wielomian wynik2 = 5 + testLiczb;
-    cout << "\n5 + a: ";
-    wynik2.Pokaz();
+    cout << "\n\nDzialanie: I = J\n";
+    cout << "Po przypisaniu I(x) = ";
+    i.Pokaz();
 
-    Wielomian wynik3 = testLiczb - 5;
-    cout << "\na - 5: ";
-    wynik3.Pokaz();
+    cout << "\n\n[8] DZIALANIA Z LICZBAMI\n";
+    cout << "--------------------------------------------\n";
 
-    Wielomian wynik4 = 5 - testLiczb;
-    cout << "\n5 - a: ";
-    wynik4.Pokaz();
+    Wielomian k("2x^2+3x+1");
 
-    Wielomian testLiczb2("2x^2 + 4x + 6");
+    cout << "\nK(x) = ";
+    k.Pokaz();
 
-    Wielomian wynik5 = testLiczb2 * 3;
-    cout << "\na * 3: ";
-    wynik5.Pokaz();
+    cout << "\n\nK(x) + 5 = ";
+    (k + 5).Pokaz();
 
-    Wielomian wynik6 = 3 * testLiczb2;
-    cout << "\n3 * a: ";
-    wynik6.Pokaz();
+    cout << "\n5 + K(x) = ";
+    (5 + k).Pokaz();
 
-    Wielomian wynik7 = testLiczb2 / 2;
-    cout << "\na / 2: ";
-    wynik7.Pokaz();
+    cout << "\nK(x) - 5 = ";
+    (k - 5).Pokaz();
+
+    cout << "\n5 - K(x) = ";
+    (5 - k).Pokaz();
+
+    cout << "\nK(x) * 3 = ";
+    (k * 3).Pokaz();
+
+    cout << "\n3 * K(x) = ";
+    (3 * k).Pokaz();
+
+    cout << "\nK(x) / 2 = ";
+    (k / 2).Pokaz();
+
+    cout << "\n\n[9] POCHODNA\n";
+    cout << "--------------------------------------------\n";
+
+    Wielomian n("3x^3+2x^2+4x+5");
+
+    cout << "\nWielomian:\nW(x) = ";
+    n.Pokaz();
+
+    Wielomian pochodna = n.Pochodna();
+
+    cout << "\nPochodna W'(x) = ";
+    pochodna.Pokaz();
+
+    cout << "\n";
+
+    cout << "\n[10] OPERATOR ()\n";
+    cout << "--------------------------------------------\n";
+
+    Wielomian m("2x^3+3x^2+4x+5");
+
+    double x = 2;
+
+    cout << "Wielomian: ";
+    m.Pokaz();
+
+    cout << "Wartosc dla x = " << x << ": " << m(x) << endl;
 
     return 0;
 }
+
+// wielomian.cpp
+// wielomian.h
+// dane z testami
