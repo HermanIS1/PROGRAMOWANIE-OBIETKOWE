@@ -12,7 +12,7 @@ private:
 public:
     Wielomian();
     Wielomian(const char *napis);
-    Wielomian(int stopien, const double wsp[]);
+    Wielomian(const double tab[], int liczba);
     Wielomian(const Wielomian &w);
     ~Wielomian();
 
