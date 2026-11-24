@@ -8,8 +8,8 @@
    - [x] metoda Pokaz() 
  - [x] operatory += (metoda klasy) i +
  - [x] pozostałe operatory arytmetyczne: -= - *= * /= / %= % (różne konteksty: wielomiany i liczby)
- - [ ] dodatkowe operatory: () [] << >> 
- - [ ] podział na pliki Wielomian.h, Wielomian.cpp, testy.cpp
+ - [x] dodatkowe operatory: () [] << >> 
+ - [x] podział na pliki Wielomian.h, Wielomian.cpp, testy.cpp
 
 ## Zad 2: Dziedziczenie wielomianów
 - [ ] A. Klasa Jednomian jako potomna klasy Wielomian
