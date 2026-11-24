@@ -27,7 +27,7 @@ int main()
     double tab[] = {5, -2, 3};
     Wielomian w1;
     Wielomian w2("3x^2-2x+5");
-    Wielomian w3(2, tab);
+    Wielomian w3(tab, 3);
     Wielomian w4(w2);
 
     cout << "  bezargumentowy:      " << w1;
