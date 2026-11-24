@@ -156,7 +156,7 @@ Wielomian Wielomian::Pochodna() const
     if (stopien == 0)
     {
         double tab[1] = {0};
-        return Wielomian(0, tab);
+        return Wielomian(tab, 1);
     }
 
     double *nowaWsp = new double[stopien];
@@ -164,7 +164,7 @@ Wielomian Wielomian::Pochodna() const
     for (int i = 1; i <= stopien; i++)
         nowaWsp[i - 1] = wsp[i] * i;
 
-    Wielomian wynik(stopien - 1, nowaWsp);
+    Wielomian wynik(nowaWsp, stopien);
     delete[] nowaWsp;
     return wynik;
 }
@@ -210,12 +210,21 @@ Wielomian::Wielomian(const char *napis)
     Normalizuj();
 }
 
-Wielomian::Wielomian(int stopien, const double tab[])
+Wielomian::Wielomian(const double tab[], int liczba)
 {
-    this->stopien = stopien;
-    wsp = new double[stopien + 1];
+    if (liczba <= 0)
+    {
+        stopien = 0;
+        wsp = new double[1];
+        wsp[0] = 0;
+        poprawny = true;
+        return;
+    }
 
-    for (int i = 0; i <= stopien; i++)
+    stopien = liczba - 1;
+    wsp = new double[liczba];
+
+    for (int i = 0; i < liczba; i++)
         wsp[i] = tab[i];
 
     poprawny = true;
@@ -482,7 +491,7 @@ Wielomian &Wielomian::operator=(const Wielomian &w)
 Wielomian operator+(const Wielomian &w, double liczba)
 {
     double tab[1] = {liczba};
-    Wielomian staly(0, tab);
+    Wielomian staly(tab, 1);
 
     return w + staly;
 }
@@ -495,7 +504,7 @@ Wielomian operator+(double liczba, const Wielomian &w)
 Wielomian operator-(const Wielomian &w, double liczba)
 {
     double tab[1] = {liczba};
-    Wielomian staly(0, tab);
+    Wielomian staly(tab, 1);
 
     return w - staly;
 }
@@ -503,7 +512,7 @@ Wielomian operator-(const Wielomian &w, double liczba)
 Wielomian operator-(double liczba, const Wielomian &w)
 {
     double tab[1] = {liczba};
-    Wielomian staly(0, tab);
+    Wielomian staly(tab, 1);
 
     return staly - w;
 }
@@ -511,7 +520,7 @@ Wielomian operator-(double liczba, const Wielomian &w)
 Wielomian operator*(const Wielomian &w, double liczba)
 {
     double tab[1] = {liczba};
-    Wielomian staly(0, tab);
+    Wielomian staly(tab, 1);
 
     return w * staly;
 }
@@ -524,7 +533,7 @@ Wielomian operator*(double liczba, const Wielomian &w)
 Wielomian operator/(const Wielomian &w, double liczba)
 {
     double tab[1] = {liczba};
-    Wielomian staly(0, tab);
+    Wielomian staly(tab, 1);
 
     return w / staly;
 }
